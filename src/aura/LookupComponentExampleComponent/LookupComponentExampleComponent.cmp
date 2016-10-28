@@ -1,0 +1,28 @@
+<aura:component access="GLOBAL" >
+	
+	<ltng:require styles="/resource/OrgResources/lib/slds202/assets/styles/salesforce-lightning-design-system.css" />
+	<aura:handler event="c:LookupCmpEvents" action="{!c.handleLookupEvents}" />
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<aura:attribute name="multiObjectSingleSelect" type="Object"/>
+	<aura:attribute name="singleObjectMultiSelect" type="Object"/>
+	<aura:attribute name="selectedId" type="String" default=""/>
+	<aura:attribute name="selectedMain" type="String" default=""/>
+	<aura:attribute name="selectedLookup" type="String" default=""/>
+	<aura:attribute name="multiSelectObject" type="String" default=""/>
+
+	<h1>Selected Object Details</h1>
+	<p>Id: {!v.selectedId}</p>
+	<p>Main: {!v.selectedMain}</p>
+	<p>Lookup Object: {!v.selectedLookup}</p>
+	<p>Multi Select Object List: {!v.multiSelectObject}</p>
+	<br/>
+
+	<h1>Multiple Objects - Single Select</h1>
+	<c:LookupComponent lookupObjectAPI="{!v.multiObjectSingleSelect}" source="Multiple Objects - Single Select" multiSelect="false"/>
+	<br/>
+
+	<h1>Single Object - Multiple Select</h1>
+	<c:LookupComponent lookupObjectAPI="{!v.singleObjectMultiSelect}" source="Single Object - Multiple Select" multiSelect="true"/>
+
+</aura:component>

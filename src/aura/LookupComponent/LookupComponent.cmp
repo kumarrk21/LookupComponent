@@ -1,0 +1,143 @@
+<aura:component access="GLOBAL" implements="force:appHostable" controller="LookupComponentController">
+    <!-- Static Resources -->
+    <ltng:require styles="/resource/OrgResources/lib/slds202/assets/styles/salesforce-lightning-design-system.css" />
+    <ltng:require scripts="/resource/OrgResources/lib/lodash.min.js" afterScriptsLoaded="{!c.doInit}" />
+    <!-- Registered Lightning Events -->
+    <aura:registerEvent access="GLOBAL" name="LookupCmpEvents" type="c:LookupCmpEvents" description="Events triggered by the Lookup Component" />
+    <!-- Global Attributes -->
+    <aura:attribute access="GLOBAL" name="lookupObjectAPI" type="Object" description="Contains list of object names, SVG icon path and classes in JSON format" />
+    <aura:attribute access="GLOBAL" name="source" type="String" description="Pass through variable to the caller of this component; to determine which field in the app invoked this component" />
+    <aura:attribute access="GLOBAL" name="multiSelect" type="Boolean" default="true" description="Enables multi-select capability for the lookup" />
+    <!-- Private Attributes -->
+    <aura:attribute name="lookupObjects" type="Object" />
+    <aura:attribute name="lookupObject" type="Object" />
+    <aura:attribute name="lookupValue" type="String" default="" />
+    <aura:attribute name="recentRecords" type="Object" />
+    <aura:attribute name="searchedRecords" type="Object" />
+    <aura:attribute name="filteredRecords" type="Object" />
+    <aura:attribute name="selectedRecords" type="Object" />
+    <aura:attribute name="selectedCnt" type="Integer" default="0" />
+    <!-- Spinner -->
+    <div aura:id="_spinner" class="slds-spinner--large slds-container--center slds-hide">
+        <img src="/resource/OrgResources/lib/slds202/assets/images/spinners/slds_spinner_brand.gif" alt="Loading..." />
+        <div class="slds-backdrop slds-backdrop--open"></div>
+    </div>
+    <div class="slds-grid slds-wrap slds-grid--pull-padded">
+        <div class="slds-col--padded slds-size--1-of-1">
+            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right slds-m-around--small">
+                <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#search" size="medium" class="slds-input__icon slds-icon-text-default" />
+                <ui:inputText aura:id="_lookupValue" class="slds-input" placeholder="{!'Search ' + v.lookupObject.label}" updateOn='keyup' keyup="{!c.filterList}" value="{!v.lookupValue}" />
+            </div>
+            <ul>
+                <li class="slds-has-divider--top slds-has-divider--bottom">
+                    <div class="slds-media slds-media--center slds-has-flexi-truncate slds-m-around--small">
+                        <div class="slds-media__figure">
+                            {!v.body}
+                        </div>
+                        <div class="slds-media__body slds-truncate">
+                            <div class="slds-form-element slds-show">
+                                <div class="slds-form-element__control">
+                                    <div class="slds-select_container">
+                                        <select id="_objSelect" aura:id="_objSelect" class="slds-select" onchange="{!c.selectObject}">
+                                            <aura:iteration items="{!v.lookupObjects}" var="item">
+                                                <option value="{!item.name}">{!item.label}</option>
+                                            </aura:iteration>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="slds-tile slds-hint-parent slds-m-top--small slds-has-divider--bottom slds-hide" onclick="{!c.searchMore}" aura:id="_searchButton">
+                    <button class="slds-button slds-m-around--small">
+                        <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#search" size="small" class="slds-icon slds-icon-text-default slds-icon--small" />
+                        <span class="slds-text-heading--small">'{!v.lookupValue}' in {!v.lookupObject.label}</span>
+                    </button>
+                </li>
+                <div aura:id="_tab" class="slds-m-top--small">
+                    <aura:if isTrue="{!v.multiSelect}">
+                        <ul class="slds-tabs--scoped__nav slds-grid" role="tablist">
+                            <li class="slds-tabs--scoped__item slds-text-heading--label slds-col slds-size--1-of-2 slds-active" role="presentation" aura:id="_tabFilter"><a class="slds-tabs--scoped__link" role="tab" aria-selected="true" aria-controls="_tabFilterItem" id="_tabFilter" onclick="{!c.showFilterTab}">Lookup</a></li>
+                            <li class="slds-tabs--scoped__item slds-text-heading--label slds-col slds-size--1-of-2" role="presentation" tabindex="-1" aura:id="_tabSelected"><a class="slds-tabs--scoped__link" role="tab" aria-selected="true" aria-controls="_tabSelectedItem" id="_tabSelected" onclick="{!c.showSelectedTab}">Selected ({!v.selectedCnt})</a></li>
+                        </ul>
+                    </aura:if>
+                    <!-- Filtered Items tab for multiselect & Single Select -->
+                    <div id="_tabFilterItem" aura:id="_tabFilterItem" role="tabpanel">
+                        <aura:if isTrue="{!v.selectedCnt>0}">
+                            <li class="slds-has-divider--bottom slds-m-around--small">
+                                <div class="slds-col--padded slds-size--1-of-1">
+                                    <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
+                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
+                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </aura:if>
+                        <aura:iteration items="{!v.filteredRecords}" var="record">
+                            <li id="{!record.id}" class="slds-tile slds-hint-parent slds-m-top--small slds-has-divider--bottom" onclick="{!c.selectRecord}">
+                                <div id="{!record.id}" class="slds-m-around--small">
+                                    <div id="{!record.id}" class="slds-media">
+                                        <p id="{!record.id}" class="slds-media__body slds-tile__title slds-text-heading--small slds-truncate">{!record.main}</p>
+                                        <aura:if isTrue="{!record.selected}">
+                                            <span></span> 
+                                            <div id="{!record.id}" class="slds-media__figure slds-m-left--x-small">
+                                                <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#check" size="x-small" class="slds-icon slds-icon-text-default slds-icon--x-small" />
+                                            </div>
+                                        </aura:if>
+                                    </div>
+                                    <div id="{!record.id}" class="slds-tile__detail">
+                                        <aura:iteration items="{!record.dataArray}" var="line">
+                                            <div id="{!record.id}" class="slds-grid">
+                                                <div id="{!record.id}" class="slds-col slds-size--1-of-3 slds-truncate">{!line.key}</div>
+                                                <div id="{!record.id}" class="slds-col slds-size--2-of-3 slds-truncate">{!line.value}</div>
+                                            </div>
+                                        </aura:iteration>
+                                    </div>
+                                </div>
+                            </li>
+                        </aura:iteration>
+                    </div>
+                    <!-- Selected Items tab for multiselect -->
+                    <aura:if isTrue="{!v.multiSelect}">
+                        <div id="_tabSelectedItem" aura:id="_tabSelectedItem" class="slds-tabs--scoped__content slds-hide" role="tabpanel">
+                            <aura:if isTrue="{!v.selectedCnt>0}">
+                                <li class="slds-has-divider--bottom slds-m-around--small">
+                                    <div class="slds-col--padded slds-size--1-of-1">
+                                        <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
+                                            <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
+                                            <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
+                                        </div>
+                                    </div>
+                                </li>
+                                <aura:iteration items="{!v.selectedRecords}" var="record">
+                                    <li id="{!record.id}" class="slds-tile slds-hint-parent slds-m-top--small slds-has-divider--bottom" onclick="{!c.deSelectRecord}">
+                                        <div id="{!record.id}" class="slds-m-around--small">
+                                            <div id="{!record.id}" class="slds-media">
+                                                <p id="{!record.id}" class="slds-media__body slds-tile__title slds-text-heading--small slds-truncate">{!record.main}</p>
+                                                <div id="{!record.id}" class="slds-media__figure slds-m-left--x-small">
+                                                    <c:svgIcon id="{!record.id}" svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#close" size="x-small" class="slds-icon slds-icon-text-default slds-icon--x-small" />
+                                                </div>
+                                            </div>
+                                            <div id="{!record.id}" class="slds-tile__detail">
+                                                <aura:iteration items="{!record.dataArray}" var="line">
+                                                    <div id="{!record.id}" class="slds-grid">
+                                                        <div id="{!record.id}" class="slds-col slds-size--1-of-3 slds-truncate">{!line.key}</div>
+                                                        <div id="{!record.id}" class="slds-col slds-size--2-of-3 slds-truncate">{!line.value}</div>
+                                                    </div>
+                                                </aura:iteration>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </aura:iteration>
+                                <aura:set attribute="else">
+                                    <p class="slds-m-around--small">No records selected yet</p>
+                                </aura:set>
+                            </aura:if>
+                        </div>
+                    </aura:if>
+                </div>
+            </ul>
+        </div>
+    </div>
+</aura:component>

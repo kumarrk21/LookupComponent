@@ -1,0 +1,4 @@
+<aura:event type="APPLICATION" access="GLOBAL" description="Raised by the Lookup Component">
+	<aura:attribute name="source" type="String"/>
+	<aura:attribute name="selectedObject" type="Object"/>
+</aura:event>

@@ -1,0 +1,97 @@
+<aura:documentation access="GLOBAL">
+	<aura:description>
+		<p>
+		The <code>LookupComponent</code> lightning component can be used in other components and lightning apps to easily invoke Salesforce1 style lookup UI. As of now, this component can be used only in other components or apps through code and cannot be used in App builder. This is because, this component takes a couple of attributes in JSON format and at this point(as of Summer '16), dynamic attribute value mapping is not available in Lightning app buidler yet.
+
+		This component currently support both multi-select and single select capabilities and uses lightning design system for styling. Provided below is a screenshot of this component being used in both single and multi select  lookup UI.
+		</p>
+		<img src="/resource/OrgResources/img/compdoc/main.png"/>
+		<br/>
+		<p>
+		The component has 3 global attributes that can be used to influence the behavior. Provide below are details on how to supply date to these attributes to influence the behavoir of the component.
+
+		<h3>Attribute 1: <code>lookupObjectAPI</code></h3>
+		This attribute can be used to influence the following
+		<ul>
+			<li>The objects that are available for lookup </li>
+			<li>The SVG Icon Path for these objects </li>
+			<li>The SVG Icon Class for these objects </li>
+			<li>Comma separated list of fields that will be displayed in the lookup result. This can come in handy to fine tune the search and choose the correct information by the user. For e.g., if your org has many duplicate contacts, you can display other fielsd like email ID to provide more information for the user to choose the right one</li>
+			<li>Search scope for the SOSL queries when searching for data using the lookup</li>
+		</ul>
+
+		<p>Provided below is an example code on how to use this the lookupObjectAPI attribute. In this example, we are setting the lookup component to allow lookup on Account and Opportunity and the user can choose between them using the select option. The SVG path and class influence the icon that is displayed next to the object. If no value is provided, these are default of custom icon5 (refer to the icon set in Lightning design system).</p>
+		<br/>
+		<pre>
+
+			
+        	var lookupObjectAPI = new Array();
+        	var obj = {};
+        	obj.name = 'Account';
+        	obj.fieldList = 'Id, Name,Industry,CleanStatus';
+        	obj.searchScope = 'NAME FIELDS';
+        	obj.svgPath = '/resource/OrgResources/lib/slds202/assets/icons/standard-sprite/svg/symbols.svg#account';
+        	obj.svgClass = 'slds-icon slds-icon-standard-account slds-icon--medium';
+        	lookupObjectAPI.push(obj);
+
+        	obj = {};
+        	obj.name = 'Opportunity';
+        	obj.fieldList = 'Id, Name, Description';
+        	obj.searchScope = 'NAME FIELDS'
+        	obj.svgPath = '/resource/OrgResources/lib/slds202/assets/icons/standard-sprite/svg/symbols.svg#opportunity';
+        	obj.svgClass = 'slds-icon slds-icon-standard-opportunity slds-icon--medium';
+        	lookupObjectAPI.push(obj);
+
+        	var cmpData = {};
+        	cmpData.lookupObjectAPI = lookupObjectAPI;
+        	cmpData.source = 'relatedTo';
+        	cmpData.multiSelect = false;
+        	$A.createComponent('c:LookupComponent', cmpData, function(newComp){
+            		cmp.set('v.body', newComp);
+        	});
+		</pre>
+		<br/>
+		<h3>Attribute 2: <code>source</code></h3>
+		<p>When the user taps a record (in case of single select) or taps the 'submit' in case of multi select, the component raises an application event called <code>LookupCmpEvents</code>. This event has two attributes</p>
+		<ul>
+			<li>source: Any value provided in the <code>source</code> attribute is passed through in the event so that the caller can decide which field this lookup was attached to in case you use more than one occurance of this comopnent. Provided below is a sample</li>
+			<li>selectedObject: This is a a JSON object which in turn contains the following fields
+				<ul>
+					<li>main: This is the value of the first field in the (excluding the Id) that you listed in the lookupObjectAPI array above</li>
+					<li>id: This is the id of the selected object</li>
+					<li>lookupObject: The lookupObject object that you passed to the lookupObjectAPI above</li>
+				</ul>
+			</li>
+		</ul>
+		<br/>
+		<p>Provided below is an example function that subscribes to this event</p>
+		<pre>
+			handleLookupEvent: function(cmp, evt) {
+	        		var source = evt.getParam('source');
+	        		var selectedObject = evt.getParam('selectedObject');
+	        		var evtObj = cmp.get('v.evtObj');
+	        		switch (source) {
+	            		case 'relatedTo':
+	                		evtObj.whatName = selectedObject.main;
+	                		evtObj.whatId = selectedObject.id;
+	                		evtObj.whatObjType = selectedObject.lookupObject.name;
+	                        break;
+	            		case 'assignedTo':
+	                		evtObj.assignedToName = selectedObject.main;
+	                		evtObj.assignedToId = selectedObject.id;
+	                		break;
+	            		default:
+	                		break;
+	        		}
+	        		cmp.set('v.evtObj', evtObj);
+    		},
+		</pre>
+		<h3>Attribute 3: <code>multiSelect</code></h3>
+		<p>Use this attribute if you want multi record select capability. If set to 'true', the <code>selectedObject</code> attribute returned by <code>LookupCmpEvents</code> will be an array of selected objects</p>
+	</p>
+	</aura:description>
+	<aura:example ref="c:LookupComponentExampleComponent" name="LookupComponentExampleComponent" label="Single select and multi select lookup components">
+		<p>This is an example component to show case how to use the lookup component for multiple object with single select as well as single object with multiple select options</p>
+	</aura:example>
+	
+</aura:documentation>
