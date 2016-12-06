@@ -1,4 +1,5 @@
 ({
+   
     doInit: function(cmp, evt, helper) {
         //Default values
         var lookupObjectAPI = cmp.get('v.lookupObjectAPI');
@@ -14,6 +15,7 @@
             cmp.set('v.lookupObjectAPI', lookupObjectAPI);
         }
         cmp.set('v.selectedRecords', new Array());
+        cmp.set('v.filteredRecords', new Array());
         var multiSelect = cmp.get('v.multiSelect');
         if (multiSelect) {
             $A.util.addClass(cmp.find("_tab"), "slds-tabs--scoped");
@@ -59,11 +61,11 @@
         var selectedObject = _.find(filteredRecords, function(item) {
             return item.id == target;
         })
-        console.log('selected object is ', selectedObject);
-        if (selectedObject.selected) {
-            selectedObject.selected = false;
+        //console.log('selected object is ', selectedObject);
+        if (selectedObject.selected=="true") {
+            selectedObject.selected = "false";
         } else {
-            selectedObject.selected = true;
+            selectedObject.selected = "true";
         }
 
         var lookupObject = cmp.get('v.lookupObject');
@@ -73,6 +75,7 @@
         });
         selectedObject.lookupObject = obj;
         cmp.set('v.filteredRecords', filteredRecords);
+        //console.log('Filtered records after selection is ', filteredRecords)
         var multiSelect = cmp.get('v.multiSelect');
         var selectedRecords = cmp.get('v.selectedRecords');
         if (multiSelect) {

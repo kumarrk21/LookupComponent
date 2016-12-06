@@ -4,7 +4,7 @@
         var apexMethod = cmp.get('c.getSObjectNames');
         var lookupObjectAPI = cmp.get('v.lookupObjectAPI');
         var objNames = _.map(lookupObjectAPI, 'name');
-        console.log('Object names is', lookupObjectAPI);
+        //console.log('Object names is', lookupObjectAPI);
         apexMethod.setParam('sObjectAPINames', objNames);
         apexMethod.setCallback(this, function(response) {
             this.hideSpinner(cmp);
@@ -14,7 +14,7 @@
                 if (ret.success) {
                     var lookupObjects = JSON.parse(ret.message);
                     cmp.set('v.lookupObjects', lookupObjects);
-                    console.log('lookupObjects is', lookupObjects);
+                    //console.log('lookupObjects is', lookupObjects);
                     try {
                         cmp.set('v.lookupObject', lookupObjects[0]);
                         this.setLookUpSVG(cmp);
@@ -45,7 +45,7 @@
             objName = cmp.find('_objSelect').getElement().value;
         }
         
-        console.log('Object Name is', objName);
+        //console.log('Object Name is', objName);
         var lookupObjects = cmp.get('v.lookupObjects');
         var lookupObject = _.find(lookupObjects, function(item) {
             return item.name == objName;
@@ -128,7 +128,7 @@
                     var records = JSON.parse(ret.message);
                     var recentRecords = this.getDataArray(this, records);
                     cmp.set('v.recentRecords', recentRecords);
-                    cmp.set('v.filteredRecords', recentRecords);
+                    cmp.set('v.filteredRecords', recentRecords);                    
                 } else {
                     this.throwError("Error getting recent records " + response.ret.message);
                     console.log(ret.message)
@@ -165,6 +165,7 @@
                 item.main = filteredArray[0].value;
                 item.dataArray = dataArray;
             }
+            item.selected = false;
             outRecords.push(item);
         })
         return outRecords;

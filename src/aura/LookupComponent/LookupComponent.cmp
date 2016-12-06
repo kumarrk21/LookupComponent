@@ -17,6 +17,7 @@
     <aura:attribute name="filteredRecords" type="Object" />
     <aura:attribute name="selectedRecords" type="Object" />
     <aura:attribute name="selectedCnt" type="Integer" default="0" />
+
     <!-- Spinner -->
     <div aura:id="_spinner" class="slds-spinner--large slds-container--center slds-hide">
         <img src="/resource/OrgResources/lib/slds202/assets/images/spinners/slds_spinner_brand.gif" alt="Loading..." />
@@ -79,12 +80,14 @@
                                 <div id="{!record.id}" class="slds-m-around--small">
                                     <div id="{!record.id}" class="slds-media">
                                         <p id="{!record.id}" class="slds-media__body slds-tile__title slds-text-heading--small slds-truncate">{!record.main}</p>
-                                        <aura:if isTrue="{!record.selected}">
+                                        
+                                        <aura:if isTrue="{!record.selected=='true'}">
                                             <span></span> 
                                             <div id="{!record.id}" class="slds-media__figure slds-m-left--x-small">
                                                 <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#check" size="x-small" class="slds-icon slds-icon-text-default slds-icon--x-small" />
                                             </div>
                                         </aura:if>
+
                                     </div>
                                     <div id="{!record.id}" class="slds-tile__detail">
                                         <aura:iteration items="{!record.dataArray}" var="line">
