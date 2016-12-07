@@ -149,16 +149,19 @@
             var item = {};
             var dataArray = new Array();
             record = _.omit(record, 'attributes');
+            record = _.omit(record, 'LastActivityDate');
+            record = _.omit(record, 'LastModifiedDate');
             _.mapKeys(record, function(value, key) {
                 var data = {};
                 var lkey = _.lowerCase(key);
-                if (lkey == 'id') {
-                    item.id = value;
-                } else {
-                    data.key = key;
-                    data.value = value;
-                    dataArray = ref.getDataFlat(ref, data, dataArray);
-                }
+                    if (lkey == 'id') {
+                        item.id = value;
+                    } else {
+                        data.key = key;
+                        data.value = value;
+                        dataArray = ref.getDataFlat(ref, data, dataArray);
+                    }    
+                
             });
             if (_.size(dataArray) > 0) {
                 var filteredArray = _.pullAt(dataArray, 0);
@@ -209,8 +212,8 @@
                 var ret = JSON.parse(response.getReturnValue());
                 if (ret.success) {
                     var records = JSON.parse(ret.message);
-                    console.log('searched records', records)
                     var searchedRecords = this.getDataArray(this, records);
+                    console.log('searched records', searchedRecords)
                     cmp.set('v.searchedRecords', searchedRecords);
                     cmp.set('v.filteredRecords', searchedRecords);
                 } else {
