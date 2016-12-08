@@ -24,14 +24,28 @@
         <div class="slds-backdrop slds-backdrop--open"></div>
     </div>
     <div class="slds-grid slds-wrap slds-grid--pull-padded">
+
         <div class="slds-col--padded slds-size--1-of-1">
-            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right slds-m-around--small">
+
+             <!--<aura:if isTrue="{!v.selectedCnt>0}">-->
+                            
+                                <div class="slds-col--padded slds-size--1-of-1">
+                                    <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
+                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
+                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
+                                    </div>
+                                </div>
+                            
+        <!--</aura:if>-->
+
+
+            <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right slds-m-bottom--small">
                 <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#search" size="medium" class="slds-input__icon slds-icon-text-default" />
                 <ui:inputText aura:id="_lookupValue" class="slds-input" placeholder="{!'Search ' + v.lookupObject.label}" updateOn='keyup' keyup="{!c.filterList}" value="{!v.lookupValue}" />
             </div>
             <ul>
                 <li class="slds-has-divider--top slds-has-divider--bottom">
-                    <div class="slds-media slds-media--center slds-has-flexi-truncate slds-m-around--small">
+                    <div class="slds-media slds-media--center slds-has-flexi-truncate slds-m-top--small slds-m-bottom--small">
                         <div class="slds-media__figure">
                             {!v.body}
                         </div>
@@ -65,26 +79,18 @@
                     </aura:if>
                     <!-- Filtered Items tab for multiselect & Single Select -->
                     <div id="_tabFilterItem" aura:id="_tabFilterItem" role="tabpanel">
-                        <aura:if isTrue="{!v.selectedCnt>0}">
-                            <li class="slds-has-divider--bottom slds-m-around--small">
-                                <div class="slds-col--padded slds-size--1-of-1">
-                                    <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
-                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
-                                        <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
-                                    </div>
-                                </div>
-                            </li>
-                        </aura:if>
+                        
                         <aura:iteration items="{!v.filteredRecords}" var="record">
                             <li id="{!record.id}" class="slds-tile slds-hint-parent slds-m-top--small slds-has-divider--bottom" onclick="{!c.selectRecord}">
                                 <div id="{!record.id}" class="slds-m-around--small">
                                     <div id="{!record.id}" class="slds-media">
                                         <p id="{!record.id}" class="slds-media__body slds-tile__title slds-text-heading--small slds-truncate">{!record.main}</p>
-                                        
-                                        <aura:if isTrue="{!record.selected=='true'}">
-                                            <span></span> 
+                                        <aura:if isTrue="{!record.selected}">
+                                            <div id="{!record.id}">
+                                            <span id="{!record.id}"></span> 
                                             <div id="{!record.id}" class="slds-media__figure slds-m-left--x-small">
-                                                <c:svgIcon svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#check" size="x-small" class="slds-icon slds-icon-text-default slds-icon--x-small" />
+                                                <c:svgIcon id="{!record.id}" svgPath="/resource/OrgResources/lib/slds202/assets/icons/utility-sprite/svg/symbols.svg#check" size="x-small" class="slds-icon slds-icon-text-default slds-icon--x-small" />
+                                            </div>
                                             </div>
                                         </aura:if>
 
@@ -105,14 +111,7 @@
                     <aura:if isTrue="{!v.multiSelect}">
                         <div id="_tabSelectedItem" aura:id="_tabSelectedItem" class="slds-tabs--scoped__content slds-hide" role="tabpanel">
                             <aura:if isTrue="{!v.selectedCnt>0}">
-                                <li class="slds-has-divider--bottom slds-m-around--small">
-                                    <div class="slds-col--padded slds-size--1-of-1">
-                                        <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
-                                            <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
-                                            <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
-                                        </div>
-                                    </div>
-                                </li>
+                               
                                 <aura:iteration items="{!v.selectedRecords}" var="record">
                                     <li id="{!record.id}" class="slds-tile slds-hint-parent slds-m-top--small slds-has-divider--bottom" onclick="{!c.deSelectRecord}">
                                         <div id="{!record.id}" class="slds-m-around--small">

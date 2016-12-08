@@ -62,10 +62,10 @@
             return item.id == target;
         })
         //console.log('selected object is ', selectedObject);
-        if (selectedObject.selected=="true") {
-            selectedObject.selected = "false";
+        if (selectedObject.selected == true) {
+            selectedObject.selected = false;
         } else {
-            selectedObject.selected = "true";
+            selectedObject.selected = true;
         }
 
         var lookupObject = cmp.get('v.lookupObject');
@@ -78,8 +78,8 @@
         //console.log('Filtered records after selection is ', filteredRecords)
         var multiSelect = cmp.get('v.multiSelect');
         var selectedRecords = cmp.get('v.selectedRecords');
-        if (multiSelect) {
 
+        if (multiSelect) {
             if (selectedObject.selected) {
                 //Check if this record is already available in the selected list
                 var avlRecord = _.find(selectedRecords, function(item) {

@@ -126,7 +126,7 @@
                 var ret = JSON.parse(response.getReturnValue());
                 if (ret.success) {
                     var records = JSON.parse(ret.message);
-                    var recentRecords = this.getDataArray(this, records);
+                    var recentRecords = this.getDataArray(this, records,cmp);
                     cmp.set('v.recentRecords', recentRecords);
                     cmp.set('v.filteredRecords', recentRecords);                    
                 } else {
@@ -143,7 +143,7 @@
     },
 
 
-    getDataArray: function(ref, inRecords) {
+    getDataArray: function(ref, inRecords,cmp) {
         var outRecords = new Array();
         _.each(inRecords, function(record) {
             var item = {};
@@ -168,7 +168,17 @@
                 item.main = filteredArray[0].value;
                 item.dataArray = dataArray;
             }
-            item.selected = false;
+            //Check if this record is already in selected Records array, if yes, mark selected as true, else false
+            var selectedRecords = cmp.get('v.selectedRecords');
+            var selectedObject = _.find(selectedRecords, function(s) {
+                return s.id == item.id;
+            })
+            if (!_.isUndefined(selectedObject)) {
+                item.selected = true;
+            }else{
+                item.selected = false;    
+            }
+
             outRecords.push(item);
         })
         return outRecords;
@@ -212,8 +222,7 @@
                 var ret = JSON.parse(response.getReturnValue());
                 if (ret.success) {
                     var records = JSON.parse(ret.message);
-                    var searchedRecords = this.getDataArray(this, records);
-                    console.log('searched records', searchedRecords)
+                    var searchedRecords = this.getDataArray(this, records,cmp);
                     cmp.set('v.searchedRecords', searchedRecords);
                     cmp.set('v.filteredRecords', searchedRecords);
                 } else {
