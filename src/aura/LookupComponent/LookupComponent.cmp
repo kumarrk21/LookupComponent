@@ -28,14 +28,14 @@
         <div class="slds-col--padded slds-size--1-of-1">
 
              <!--<aura:if isTrue="{!v.selectedCnt>0}">-->
-                            
+              <aura:if isTrue="{!v.multiSelect}">              
                                 <div class="slds-col--padded slds-size--1-of-1">
                                     <div class="slds-grid slds-grid--pull-padded slds-m-bottom--small">
                                         <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--neutral" onclick="{!c.cancel}">Cancel</button>
                                         <button class="slds-col--padded slds-size--1-of-2 slds-button slds-button--brand" onclick="{!c.submit}">Submit</button>
                                     </div>
                                 </div>
-                            
+             </aura:if>                            
         <!--</aura:if>-->
 
 
